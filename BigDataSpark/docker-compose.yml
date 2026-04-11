@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: bds2-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bds2
+      POSTGRES_USER: bds_user
+      POSTGRES_PASSWORD: bds_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./sql/init:/docker-entrypoint-initdb.d:ro
+      - ./исходные данные:/data/csv:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bds_user -d bds2"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: bds2-clickhouse
+    restart: unless-stopped
+    environment:
+      CLICKHOUSE_DB: analytics
+      CLICKHOUSE_USER: ch_user
+      CLICKHOUSE_PASSWORD: ch_pass
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ch_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --user ch_user --password ch_pass --query 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  spark-master:
+    image: apache/spark:3.5.1
+    container_name: bds2-spark-master
+    restart: unless-stopped
+    command: >
+      /bin/bash -c "
+      /opt/spark/sbin/start-master.sh;
+      tail -f /dev/null"
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - ./spark:/opt/spark/work-dir
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+
+  spark-worker:
+    image: apache/spark:3.5.1
+    container_name: bds2-spark-worker
+    restart: unless-stopped
+    command: >
+      /bin/bash -c "
+      /opt/spark/sbin/start-worker.sh spark://spark-master:7077;
+      tail -f /dev/null"
+    environment:
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_CORES=2
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark:/opt/spark/work-dir
+    depends_on:
+      - spark-master
+
+volumes:
+  pg_data:
+  ch_data:
