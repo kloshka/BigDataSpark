@@ -207,6 +207,7 @@ def main() -> None:
         .agg(F.sum("total_price").alias("revenue"), F.sum("quantity").alias("units"))
         .select(
             F.lit("monthly_yearly_sales_trend").alias("metric_type"),
+            F.concat_ws("-", F.col("year"), F.format_string("%02d", F.col("month"))).alias("period"),
             "year",
             "month",
             F.col("revenue").cast("double").alias("value_1"),
@@ -221,6 +222,7 @@ def main() -> None:
         .agg(F.sum("total_price").alias("revenue"))
         .select(
             F.lit("revenue_by_period").alias("metric_type"),
+            F.col("period"),
             F.lit(None).cast("int").alias("year"),
             F.lit(None).cast("int").alias("month"),
             F.col("revenue").cast("double").alias("value_1"),
@@ -234,6 +236,7 @@ def main() -> None:
         .agg(F.avg("total_price").alias("avg_order_size"))
         .select(
             F.lit("avg_order_by_month").alias("metric_type"),
+            F.concat_ws("-", F.col("year"), F.format_string("%02d", F.col("month"))).alias("period"),
             "year",
             "month",
             F.col("avg_order_size").cast("double").alias("value_1"),
