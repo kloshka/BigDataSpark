@@ -45,8 +45,7 @@ def write_clickhouse(df, table_name: str) -> None:
         .option("user", CLICKHOUSE_PROPS["user"])
         .option("password", CLICKHOUSE_PROPS["password"])
         .option("driver", CLICKHOUSE_PROPS["driver"])
-        .option("createTableOptions", "ENGINE = MergeTree() ORDER BY tuple()")
-        .mode("overwrite")
+        .mode("append")
         .save()
     )
 

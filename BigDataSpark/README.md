@@ -92,7 +92,9 @@ docker compose up -d
 docker exec -it bds2-spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.jars.ivy=/tmp/.ivy2 --packages org.postgresql:postgresql:42.7.3 /opt/spark/work-dir/jobs/etl_to_star.py
 ```
 
-4. При необходимости создать базу analytics в ClickHouse:
+4. ClickHouse инициализируется автоматически (база analytics и 6 таблиц витрин создаются init-скриптом в sql/clickhouse-init).
+
+При необходимости можно выполнить команду вручную:
 
 ```powershell
 docker exec -it bds2-clickhouse clickhouse-client --user ch_user --password ch_pass --query "CREATE DATABASE IF NOT EXISTS analytics;"

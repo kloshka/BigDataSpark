@@ -33,6 +33,7 @@ services:
       - "9000:9000"
     volumes:
       - ch_data:/var/lib/clickhouse
+      - ./sql/clickhouse-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "clickhouse-client --user ch_user --password ch_pass --query 'SELECT 1'"]
       interval: 10s

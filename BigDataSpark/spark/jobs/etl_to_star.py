@@ -14,7 +14,7 @@ def ns_eq(left_col, right_col):
     return left_col.eqNullSafe(right_col)
 
 
-def write_pg(df, table_name: str, mode: str = "overwrite") -> None:
+def write_pg(df, table_name: str, mode: str = "append") -> None:
     df.write.jdbc(
         url=POSTGRES_URL,
         table=table_name,
