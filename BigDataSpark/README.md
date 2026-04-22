@@ -1,7 +1,7 @@
 # Отчет по лабораторной работе №2: Реализация ETL-пайплайна в Apache Spark и построение витрин в ClickHouse
 
 ## Введение
-Данная лабораторная работа является продолжением первой части, где выполнялась нормализация исходных данных. Основная цель текущей работы - вынести трансформации из СУБД во внешний движок Apache Spark и построить аналитические витрины в ClickHouse на основе модели данных звезда/снежинка в PostgreSQL.
+Данная лабораторная работа является продолжением первой части, где выполнялась нормализация исходных данных. Основная цель текущей работы - вынести трансформации из СУБД во внешний движок Apache Spark и построить аналитические витрины в ClickHouse на основе модели данных звезда в PostgreSQL.
 
 ---
 
@@ -12,11 +12,11 @@
 
 Инициализация структуры и загрузка сырых данных выполняется автоматически при старте PostgreSQL из SQL-скрипта. В исходную таблицу загружаются все 10 CSV-файлов, суммарно 10000 записей.
 
-### 2. Трансформация в модель звезда/снежинка через PySpark
+### 2. Трансформация в модель звезда через PySpark
 Реализовано Spark-приложение etl_to_star.py, которое:
 - читает данные из public.mock_data в PostgreSQL;
 - приводит даты и типы к аналитически корректному виду;
-- формирует измерения dwh.dim_customer, dwh.dim_pet, dwh.dim_seller, dwh.dim_category, dwh.dim_store_location, dwh.dim_store, dwh.dim_supplier, dwh.dim_product, dwh.dim_date;
+- формирует измерения dwh.dim_customer, dwh.dim_seller, dwh.dim_store, dwh.dim_supplier, dwh.dim_product, dwh.dim_date;
 - формирует факт-таблицу dwh.fact_sales с ключами измерений и показателями продаж.
 
 Ключевые инженерные решения:
@@ -86,7 +86,7 @@
 docker compose up -d
 ```
 
-3. Запустить джобу построения модели звезда/снежинка в PostgreSQL:
+3. Запустить джобу построения модели звезда в PostgreSQL:
 
 ```powershell
 docker exec -it bds2-spark-master /opt/spark/bin/spark-submit --master spark://spark-master:7077 --conf spark.jars.ivy=/tmp/.ivy2 --packages org.postgresql:postgresql:42.7.3 /opt/spark/work-dir/jobs/etl_to_star.py

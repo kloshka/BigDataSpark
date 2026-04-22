@@ -59,20 +59,16 @@ def main() -> None:
 
     fact = read_pg(spark, "dwh.fact_sales").alias("f")
     dim_product = read_pg(spark, "dwh.dim_product").alias("p")
-    dim_category = read_pg(spark, "dwh.dim_category").alias("g")
     dim_customer = read_pg(spark, "dwh.dim_customer").alias("c")
     dim_date = read_pg(spark, "dwh.dim_date").alias("d")
     dim_store = read_pg(spark, "dwh.dim_store").alias("s")
-    dim_store_location = read_pg(spark, "dwh.dim_store_location").alias("sl")
     dim_supplier = read_pg(spark, "dwh.dim_supplier").alias("u")
 
     sales_ext = (
         fact.join(dim_product, F.col("f.product_id") == F.col("p.product_id"), "left")
-        .join(dim_category, F.col("p.category_id") == F.col("g.category_id"), "left")
         .join(dim_customer, F.col("f.customer_id") == F.col("c.customer_id"), "left")
         .join(dim_date, F.col("f.date_id") == F.col("d.date_id"), "left")
         .join(dim_store, F.col("f.store_id") == F.col("s.store_id"), "left")
-        .join(dim_store_location, F.col("s.location_id") == F.col("sl.location_id"), "left")
         .join(dim_supplier, F.col("f.supplier_id") == F.col("u.supplier_id"), "left")
         .select(
             F.col("f.source_row_id").alias("sale_id"),
@@ -92,13 +88,13 @@ def main() -> None:
             F.col("c.last_name").alias("customer_last_name"),
             F.col("c.country").alias("customer_country"),
             F.col("p.name").alias("product_name"),
-            F.col("g.category_name").alias("product_category"),
+            F.col("p.category").alias("product_category"),
             F.col("p.rating").alias("product_rating"),
             F.col("p.reviews").alias("product_reviews"),
             F.col("p.price").alias("product_price"),
             F.col("s.name").alias("store_name"),
-            F.col("sl.city").alias("store_city"),
-            F.col("sl.country").alias("store_country"),
+            F.col("s.city").alias("store_city"),
+            F.col("s.country").alias("store_country"),
             F.col("u.name").alias("supplier_name"),
             F.col("u.country").alias("supplier_country"),
         )

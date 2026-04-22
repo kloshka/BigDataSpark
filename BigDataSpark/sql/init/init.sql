@@ -675,10 +675,7 @@ DROP TABLE IF EXISTS dwh.fact_sales;
 DROP TABLE IF EXISTS dwh.dim_product;
 DROP TABLE IF EXISTS dwh.dim_supplier;
 DROP TABLE IF EXISTS dwh.dim_store;
-DROP TABLE IF EXISTS dwh.dim_store_location;
-DROP TABLE IF EXISTS dwh.dim_category;
 DROP TABLE IF EXISTS dwh.dim_seller;
-DROP TABLE IF EXISTS dwh.dim_pet;
 DROP TABLE IF EXISTS dwh.dim_customer;
 DROP TABLE IF EXISTS dwh.dim_date;
 
@@ -689,11 +686,7 @@ CREATE TABLE dwh.dim_customer (
     age INTEGER,
     email VARCHAR(200),
     country VARCHAR(100),
-    postal_code VARCHAR(20)
-);
-
-CREATE TABLE dwh.dim_pet (
-    pet_id BIGINT PRIMARY KEY,
+    postal_code VARCHAR(20),
     pet_type VARCHAR(50),
     pet_name VARCHAR(100),
     pet_breed VARCHAR(100)
@@ -708,23 +701,13 @@ CREATE TABLE dwh.dim_seller (
     postal_code VARCHAR(20)
 );
 
-CREATE TABLE dwh.dim_category (
-    category_id BIGINT PRIMARY KEY,
-    category_name VARCHAR(100)
-);
-
-CREATE TABLE dwh.dim_store_location (
-    location_id BIGINT PRIMARY KEY,
-    location VARCHAR(200),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    country VARCHAR(100)
-);
-
 CREATE TABLE dwh.dim_store (
     store_id BIGINT PRIMARY KEY,
     name VARCHAR(200),
-    location_id BIGINT REFERENCES dwh.dim_store_location(location_id),
+    location VARCHAR(200),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100),
     phone VARCHAR(30),
     email VARCHAR(200)
 );
@@ -743,7 +726,7 @@ CREATE TABLE dwh.dim_supplier (
 CREATE TABLE dwh.dim_product (
     product_id INTEGER PRIMARY KEY,
     name VARCHAR(200),
-    category_id BIGINT REFERENCES dwh.dim_category(category_id),
+    category VARCHAR(100),
     price DOUBLE PRECISION,
     quantity INTEGER,
     pet_category VARCHAR(50),
@@ -756,8 +739,7 @@ CREATE TABLE dwh.dim_product (
     rating DOUBLE PRECISION,
     reviews INTEGER,
     release_date DATE,
-    expiry_date DATE,
-    supplier_id BIGINT REFERENCES dwh.dim_supplier(supplier_id)
+    expiry_date DATE
 );
 
 CREATE TABLE dwh.dim_date (
@@ -772,7 +754,6 @@ CREATE TABLE dwh.fact_sales (
     source_row_id INTEGER PRIMARY KEY,
     date_id BIGINT REFERENCES dwh.dim_date(date_id),
     customer_id INTEGER REFERENCES dwh.dim_customer(customer_id),
-    pet_id BIGINT REFERENCES dwh.dim_pet(pet_id),
     seller_id INTEGER REFERENCES dwh.dim_seller(seller_id),
     product_id INTEGER REFERENCES dwh.dim_product(product_id),
     store_id BIGINT REFERENCES dwh.dim_store(store_id),
